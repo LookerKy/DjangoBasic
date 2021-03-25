@@ -5,5 +5,6 @@ from users.views import home
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
-    path('', home)
+    path('', home),
+    path('board/', include('board.urls'))
 ]
