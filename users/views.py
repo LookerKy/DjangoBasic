@@ -1,30 +1,54 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import make_password, check_password
 from .models import Users
+from .forms import LoginForm
+
+
+def home(request):
+    user_id = request.session.get('user')
+
+    if user_id:
+        user = Users.objects.get(pk=user_id)
+        return HttpResponse(user.user_name)
+
+    return HttpResponse("Home")
+
+
+def logout(request):
+    if request.session.get('user'):
+        del (request.session['user'])
+
+    return redirect('/')
 
 
 def login(request):
-    if request.method == 'GET':
-        return render(request, 'login.html')
-    elif request.method == 'POST':
-        body = request.POST
-        user_name = body.get('username', None)
-        password = body.get('password', None)
+    form = LoginForm()
+    return render(request, 'login.html', {'form': form})
+    # if request.method == 'GET':
+    #     if request.session.get('user'):
+    #         return redirect('/')
+    #     return render(request, 'login.html')
+    # elif request.method == 'POST':
+    #     body = request.POST
+    #     user_name = body.get('username', None)
+    #     password = body.get('password', None)
+    #
+    #     res_data = {}
+    #
+    #     if not (user_name and password):
+    #         res_data['error'] = "모든값을 입력해야됩니다."
+    #     else:
+    #         user = Users.objects.get(user_name=user_name)
+    #         if check_password(password, user.password):
+    #             # 로그인 처리
+    #             # 세션
+    #             request.session['user'] = user.id
+    #             return redirect('/')
+    #         else:
+    #             res_data['error'] = "모든값을 입력해야됩니다."
 
-        res_data = {}
-
-        if not (user_name and password):
-            res_data['error'] = "모든값을 입력해야됩니다."
-        else:
-            user = Users.objects.get(user_name=user_name)
-            if check_password(password, user.password):
-                # 로그인 처리
-                pass
-            else:
-                res_data['error'] = "모든값을 입력해야됩니다."
-
-        return render(request, 'login.html', res_data)
+    # return render(request, 'login.html', res_data)
 
 
 def register(request):
