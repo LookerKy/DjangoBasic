@@ -10,9 +10,8 @@ def home(request):
 
     if user_id:
         user = Users.objects.get(pk=user_id)
-        return HttpResponse(user.user_name)
 
-    return HttpResponse("Home")
+    return render(request, 'home.html')
 
 
 def logout(request):
@@ -30,6 +29,8 @@ def login(request):
             request.session['user'] = form.user_id
             return redirect('/')
     else:
+        if request.session.get('user'):
+            return redirect('/')
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})

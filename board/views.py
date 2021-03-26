@@ -3,6 +3,7 @@ from django.http import Http404
 from .models import Board
 from .forms import BoardForm
 from users.models import Users
+from tag.models import Tag
 from django.core.paginator import Paginator
 
 
@@ -25,11 +26,19 @@ def board_write(request):
             user_id = request.session.get('user')
             user = Users.objects.get(pk=user_id)
 
+            tags = form.cleaned_data['tags'].split(',')
             board = Board()
             board.title = form.cleaned_data['title']
             board.contents = form.cleaned_data['contents']
             board.writer = user
             board.save()
+
+            for tag in tags:
+                if not tag:
+                    continue
+
+                _tag, _ = Tag.objects.get_or_create(name=tag)
+                board.tags.add(_tag)  # board와 관계를 맺고 있기 때문에 board를 먼저 생성해놓고 저장해야지 오류가 나지않음
 
             return redirect('/board/list')
 
